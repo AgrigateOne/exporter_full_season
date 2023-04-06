@@ -1,0 +1,727 @@
+query: |
+  SELECT invoice_ref_no, ucr_number, customer_code, marketing_desk, gl_code, final_receiver, month, shipping_week,
+  deal_category, deal_type, receiver_inco_term, supplier_inco_term, voyage_code, voyage_short_code,
+  container_number, shipping_line, pol, pod, eta, etd, ata, atd, year, supplier_super_group, supplier_group, supplier,
+  financial_qc_status, qc_status, packed_date_time, packing_week, intake_week, pool, farm_code, puc, farm_within_farm,
+  orchard, phc, seal_point,
+  pallet_number, pallet_number_adjusted, pallet_sequence_number, season_code, commodity_group_description,
+  commodity_code, variety_code, variety_group, variety_description, size_count_code, mark_code, grade_code, nett_weight, total_weight,
+  pack_code, commercial_weight, total_commercial_weight,
+  shipping_tm_group, sale_tm, fin_tm, pool_target_market, profit_commission, perc, pallet_size, total_cartons, standard_cartons,
+  currency_code, usd_etd_roe, roe_on_etd, roe_on_atd, roe_on_acc_sale, roe_on_receipt, invoiced_price_per_kg, invoiced_price_per_carton,
+  total_invoiced_price, preliminary_ref_no, preliminary_price_per_kg, preliminary_price_per_carton,
+  total_preliminary_price, quality_credit_note_numbers, quality_credit_note, total_quality_credit_note,
+  quality_credit_note_zar, total_quality_credit_note_zar, credit_note, total_credit_note, credit_note_type,
+  credit_note_numbers, debit_note, total_debit_note,
+  debit_note_type, debit_note_numbers, total_received, cif_fob, total_cif_fob, freight, total_freight, overseas_costs,
+  total_overseas_costs, provision_commercial_credit, total_provision_commercial_credit, pre_profit_fob, total_pre_profit_fob, profit, total_profit, post_profit_fob,
+  total_post_profit_fob, commission, total_commission, supplier_fob, total_supplier_fob,
+  estimated_fob_costs_per_crtn, total_estimated_fob_costs, actual_fob_costs_per_ctn,
+  total_actual_fob_costs, rebate, total_rebate, ex_cold_store_per_carton, total_ex_cold_store, cold_storage_cost_per_carton, total_cold_storage_costs,
+  dip, total_dip, transport_to_port_per_carton, total_transport_to_port, ppecb, total_ppecb, cga, total_cga,
+  other_levies, total_other, packing_costs, total_packing_costs,
+  vat, total_vat, due_to_supplier_per_carton, total_due_to_supplier,
+  pre_profit_fob_zar, total_pre_profit_fob_zar,
+  profit_zar, total_profit_zar, post_profit_fob_zar, total_post_profit_fob_zar, commission_zar,
+  total_commission_zar, supplier_fob_zar, total_supplier_fob_zar, estimated_fob_cost_per_carton_zar,
+  total_estimated_fob_costs_zar, actual_fob_costs_per_carton_zar, total_actual_fob_costs_zar, rebate_zar, total_rebate_zar, ex_cold_store_per_carton_zar, total_ex_cold_store_zar,
+  cold_storage_cost_per_carton_zar, total_cold_storage_costs_zar, dip_zar,
+  total_dip_zar, transport_to_port_per_carton_zar, total_transport_to_port_zar, ppecb_zar, total_ppecb_zar, cga_zar, total_cga_zar,
+  other_levies_zar, total_other_zar, packing_costs_zar, total_packing_costs_zar,
+  vat_zar, total_vat_zar, due_to_supplier_per_carton_zar, total_due_to_supplier_zar,
+  customer_account_sale_status, market_finalisation_status, customer_account_sale_qc_status, customer_account_sale_final_status,
+  customer_account_sale_approved_on, account_sale_finalised, date_cas_finalised, liquidated_foreign_costs,
+  liquidated_local_costs, liquidated_default_costs, account_sale_completed, invoice_paid_in_full,
+  supp_accsale_id, supplier_invoiced_price_per_carton,
+  total_supplier_invoice_invoiced_price, supplier_credit_note, total_supplier_credit_note,
+  supplier_debit_note, total_supplier_debit_note, pallet_sequence_id,
+  supplier_invoice_ref, supp_inv_internal_ref, marketing_tm_description,
+  pay_in_forex, supplier_currency, account_sale_due_date, amount_paid,
+  first_pm_due_date, second_pm_due_date, final_pm_due_date,
+  nett_masterfile_weight, total_masterfile_weight,
+  ph_handling, total_ph_handling, ph_degreening, total_ph_degreening, ph_packing_costs, total_ph_packing_costs, ph_cold_storage, total_ph_cold_storage,
+  ph_vat, total_ph_vat, ph_supplier_nett, total_ph_supplier_nett,low_chem, packed_tm_group,dest_country,invoice_id,
+  channel,related_party,customer_type,fin_supplier_type,reporting_commodity,brand_type,zar_total_sales,cas_finalization_status,production_run_id,
+  first_notice_decay_condition, first_notice_progressive_condition, first_notice_non_progressive_condition,
+  decay_factor_perc, progressive_factor_perc, non_progressive_factor_perc_1, non_progressive_factor_perc_2, notes, final_receiver_org_group_code, customer_org_group_code,
+  usd_sales, total_usd_sales
+  FROM dw_fin_full_season_2022
+  WHERE(customer_code={customer_code} AND supplier={supplier} AND voyage_code={voyage_code}
+  AND commodity_code={commodity_code} AND variety_code={variety_code} AND variety_group={variety_group}
+  AND supplier_super_group={supplier_super_group} AND pallet_number={pallet_number}
+  AND atd={atd})
+  -- ***************************************************************************************
+  -- NOTE: When changing the year, also change the year in app/models/report_full_season.rb.
+  -- ***************************************************************************************
+main_table_name: report_full_seasons
+default_report_index_group_name: Finance
+
+grid_configs:
+  caption: Full Season
+  column_widths:
+    customer_code: 200
+    voyage_code: 200
+    supplier: 200
+    ucr_number: 200
+    invoice_ref_no: 100
+    final_receiver: 200
+    month: 70
+    container_number: 120
+    farm_code: 150
+    pallet_number: 120
+    pallet_number_adjusted: 120
+    total_cartons: 100
+    pallet_sequence_id: 100
+    low_chem: 120
+    packed_tm_group: 120
+    dest_country: 200
+    channel: 120
+    related_party: 120
+    customer_type: 120
+    fin_supplier_type: 120
+    reporting_commodity: 120
+    brand_type: 120
+    cas_finalization_status: 200
+  data_types:
+    account_sale_finalised: boolean
+    liquidated_foreign_costs: boolean
+    liquidated_local_costs: boolean
+    liquidated_default_costs: boolean
+    account_sale_completed: boolean
+    invoice_paid_in_full: boolean
+    total_cartons: integer
+    standard_cartons: number
+    shipping_week: integer
+    packing_week: integer
+    intake_week: integer
+    pallet_sequence_id: integer
+    pallet_sequence_number: integer
+    eta: date
+    etd: date
+    atd: date
+    ata: date
+    year: integer
+    packed_date_time: date
+    nett_weight: number
+    total_weight: number
+    nett_masterfile_weight: number
+    total_masterfile_weight: number
+    perc: number
+    pallet_size: number
+    usd_etd_roe: number
+    roe_on_etd: number
+    roe_on_atd: number
+    roe_on_acc_sale: number
+    roe_on_receipt: number
+    invoiced_price_per_kg: number
+    invoiced_price_per_carton: number
+    total_invoiced_price: number
+    preliminary_ref_no: integer
+    preliminary_price_per_kg: number
+    preliminary_price_per_carton: number
+    total_preliminary_price: number
+    quality_credit_note: number
+    total_quality_credit_note: number
+    quality_credit_note_zar: number
+    total_quality_credit_note_zar: number
+    credit_note: number
+    total_credit_note: number
+    debit_note: number
+    total_debit_note: number
+    total_received: number
+    cif_fob: number
+    total_cif_fob: number
+    freight: number
+    total_freight: number
+    overseas_costs: number
+    total_overseas_costs: number
+    provision_commercial_credit: number
+    total_provision_commercial_credit: number
+    pre_profit_fob: number
+    total_pre_profit_fob: number
+    profit: number
+    total_profit: number
+    post_profit_fob: number
+    total_post_profit_fob: number
+    commission: number
+    total_commission: number
+    supplier_fob: number
+    total_supplier_fob: number
+    estimated_fob_costs_per_crtn: number
+    total_estimated_fob_costs: number
+    actual_fob_costs_per_ctn: number
+    total_actual_fob_costs: number
+    dip: number
+    total_dip: number
+    pre_profit_fob_zar: number
+    total_pre_profit_fob_zar: number
+    profit_zar: number
+    total_profit_zar: number
+    post_profit_fob_zar: number
+    total_post_profit_fob_zar: number
+    commission_zar: number
+    total_commission_zar: number
+    supplier_fob_zar: number
+    total_supplier_fob_zar: number
+    estimated_fob_cost_per_carton_zar: number
+    total_estimated_fob_costs_zar: number
+    actual_fob_costs_per_carton_zar: number
+    total_actual_fob_costs_zar: number
+    rebate: number
+    total_rebate: number
+    rebate_zar: number
+    total_rebate_zar: number
+    dip_zar: number
+    total_dip_zar: number
+    ppecb_zar: number
+    total_ppecb_zar: number
+    cga_zar: number
+    total_cga_zar: number
+    other_levies_zar: number
+    total_other_zar: number
+    packing_costs_zar: number
+    total_packing_costs_zar: number
+    ppecb: number
+    total_ppecb: number
+    cga: number
+    total_cga: number
+    other_levies: number
+    total_other: number
+    packing_costs: number
+    total_packing_costs: number
+    vat_zar: number
+    total_vat_zar: number
+    due_to_supplier_per_carton_zar: number
+    total_due_to_supplier_zar: number
+    supp_accsale_id: integer
+    supplier_invoiced_price_per_carton: number
+    total_supplier_invoice_invoiced_price: number
+    supplier_credit_note: number
+    total_supplier_credit_note: number
+    supplier_debit_note: number
+    total_supplier_debit_note: number
+    vat: number
+    total_vat: number
+    due_to_supplier_per_carton: number
+    total_due_to_supplier: number
+    commercial_weight: number
+    total_commercial_weight: number
+    customer_account_sale_approved_on: date
+    date_cas_finalised: date
+    pay_in_forex: boolean
+    account_sale_due_date: date
+    amount_paid: number
+    first_pm_due_date: date
+    second_pm_due_date: date
+    final_pm_due_date: date
+    ex_cold_store_per_carton_zar: number
+    total_ex_cold_store_zar: number
+    cold_storage_cost_per_carton_zar: number
+    total_cold_storage_costs_zar: number
+    transport_to_port_per_carton_zar: number
+    total_transport_to_port_zar: number
+    ex_cold_store_per_carton: number
+    total_ex_cold_store: number
+    cold_storage_cost_per_carton: number
+    total_cold_storage_costs: number
+    transport_to_port_per_carton: number
+    total_transport_to_port: number
+    ph_handling: number
+    total_ph_handling: number
+    ph_degreening: number
+    total_ph_degreening: number
+    ph_packing_costs: number
+    total_ph_packing_costs: number
+    ph_cold_storage: number
+    total_ph_cold_storage: number
+    ph_vat: number
+    total_ph_vat: number
+    ph_supplier_nett: number
+    total_ph_supplier_nett: number
+    zar_total_sales: number
+    decay_factor_perc: number
+    progressive_factor_perc: number
+    non_progressive_factor_perc_1: number
+    non_progressive_factor_perc_2: number
+    usd_sales: number
+    total_usd_sales: number
+  column_captions:
+    invoice_ref_no: Invoice ref no
+    ucr_number: Ucr number
+    customer_code: Customer code
+    marketing_desk: Marketing Desk
+    gl_code: Gl code
+    final_receiver: Final receiver
+    month: Month
+    shipping_week: Ship wk
+    deal_category: Deal category
+    deal_type: Deal type
+    receiver_inco_term: Receiver inco term
+    supplier_inco_term: Supplier inco term
+    voyage_code: Voyage code
+    voyage_short_code: Voyage short code
+    container_number: Container number
+    shipping_line: Shipping line
+    pol: POL
+    pod: POD
+    eta: ETA
+    etd: ETD
+    atd: ATD
+    ata: ATA
+    year: Year
+    supplier_super_group: Supp super grp
+    supplier_group: Supplier group
+    supplier: Supplier
+    qc_status: Qc status
+    financial_qc_status: Fin QC status
+    packed_date_time: Pack date
+    packing_week: Pack wk
+    intake_week: Intake wk
+    pool: Pool
+    farm_code: Farm code
+    puc: PUC
+    farm_within_farm: Farm within farm
+    pallet_number: Pallet number
+    pallet_number_adjusted: Pallet number (adj)
+    pallet_sequence_number: Pallet Seq
+    season_code: Season code
+    commodity_code: Commodity code
+    commodity_group_description: Commodity group
+    variety_code: Variety code
+    variety_group: Variety group
+    variety_description: Variety description
+    size_count_code: Size count code
+    mark_code: Mark code
+    grade_code: Grade code
+    nett_weight: Nett weight
+    total_weight: Total weight
+    nett_masterfile_weight: Nett M/file weight
+    total_masterfile_weight: Total M/file weight
+    commercial_weight: Commercial weight
+    total_commercial_weight: Total commercial weight
+    pack_code: Pack code
+    shipping_tm_group: Shipping tm group
+    sale_tm: Sale tm
+    fin_tm: Fin.tm
+    pool_target_market: Pool TM
+    profit_commission: Profit commission
+    perc: Perc
+    pallet_size: Pallet size
+    total_cartons: Total cartons
+    standard_cartons: Std cartons
+    currency_code: Currency
+    usd_etd_roe: Usd etd roe
+    roe_on_etd: Roe on etd
+    roe_on_atd: Roe on atd
+    roe_on_acc_sale: Roe on acc sale
+    roe_on_acc_sale: Roe on receipt
+    invoiced_price_per_kg: Invoiced price per kg
+    invoiced_price_per_carton: Invoiced price per carton
+    total_invoiced_price: Total invoiced price
+    preliminary_ref_no: Preliminary Ref
+    preliminary_price_per_kg: Preliminary price per kg
+    preliminary_price_per_cartoN: Preliminary price per carton
+    total_preliminary_price: Total Preliminary price
+    quality_credit_note_numbers: Quality credit note numbers
+    quality_credit_note: Quality credit note
+    total_quality_credit_note: Total quality credit note
+    quality_credit_note_zar: Quality credit note ZAR
+    total_quality_credit_note_zar: Total quality credit note ZAR
+    credit_note: Credit note
+    total_credit_note: Total credit note
+    credit_note_type: Credit note type
+    credit_note_numbers: Credit note numbers
+    debit_note: Debit note
+    total_debit_note: Total debit note
+    debit_note_type: Debit note type
+    debit_note_numbers: Debit note numbers
+    total_received: Total received
+    cif_fob: Cif fob
+    total_cif_fob: Total cif fob
+    freight: Freight
+    total_freight: Total freight
+    overseas_costs: Overseas costs
+    total_overseas_costs: Total overseas costs
+    provision_commercial_credit: Provision for commercial credit
+    total_provision_commercial_credit: Total Provision for commercial credit
+    pre_profit_fob: Pre profit fob
+    total_pre_profit_fob: Total pre profit fob
+    profit: Profit
+    total_profit: Total profit
+    post_profit_fob: Post profit fob
+    total_post_profit_fob: Total post profit fob
+    commission: Commission
+    total_commission: Total commission
+    supplier_fob: Supplier fob
+    total_supplier_fob: Total supplier fob
+    estimated_fob_costs_per_crtn: Estimated fob costs per crtn
+    total_estimated_fob_costs: Total estimated fob costs
+    actual_fob_costs_per_ctn: Actual fob costs per ctn
+    total_actual_fob_costs: Total actual fob costs
+    dip: Dip
+    total_dip: Total dip
+    pre_profit_fob_zar: Pre profit fob zar
+    total_pre_profit_fob_zar: Total pre profit fob zar
+    profit_zar: Profit zar
+    total_profit_zar: Total profit zar
+    post_profit_fob_zar: Post profit fob zar
+    total_post_profit_fob_zar: Total post profit fob zar
+    commission_zar: Commission zar
+    total_commission_zar: Total commission zar
+    supplier_fob_zar: Supplier fob zar
+    total_supplier_fob_zar: Total supplier fob zar
+    estimated_fob_cost_per_carton_zar: Estimated fob cost per carton zar
+    total_estimated_fob_costs_zar: Total estimated fob costs zar
+    actual_fob_costs_per_carton_zar: Actual fob costs per carton zar
+    total_actual_fob_costs_zar: Total actual fob costs zar
+    rebate: Rebate
+    total_rebate: Total Rebate
+    rebate_zar: Rebate ZAR
+    total_rebate_zar: Total Rebate ZAR
+    dip_zar: Dip zar
+    total_dip_zar: Total dip zar
+    ppecb_zar: Ppecb zar
+    total_ppecb_zar: Total ppecb zar
+    cga_zar: Cga zar
+    total_cga_zar: Total cga zar
+    other_levies_zar: Other levies zar
+    total_other_zar: Total other zar
+    packing_costs_zar: Packing costs zar
+    total_packing_costs_zar: Total packing costs zar
+    ppecb: Ppecb
+    total_ppecb: Total ppecb
+    cga: Cga
+    total_cga: Total cga
+    other_levies: Other levies
+    total_other: Total other
+    packing_costs: Packing costs
+    total_packing_costs: Total packing costs
+    vat_zar: Vat zar
+    total_vat_zar: Total vat zar
+    due_to_supplier_per_carton_zar: Due to supplier per carton zar
+    total_due_to_supplier_zar: Total due to supplier zar
+    account_sale_finalised: Account sale finalised
+    liquidated_foreign_costs: Foreign liquidated
+    liquidated_local_costs: Local liquidated
+    liquidated_default_costs: Default liquidated
+    account_sale_completed: Accsale completed
+    customer_account_sale_status: Cust accsale status
+    market_finalisation_status: Market finalisation status
+    customer_account_sale_qc_status: Cust accsale QC status
+    customer_account_sale_final_status: Cust accsale Final status
+    customer_account_sale_approved_on: Cust accsale approved on
+    date_cas_finalised: Cust accsale finalised on
+    supp_accsale_id: Supp. accsale id
+    supplier_invoiced_price_per_carton: Supplier invoiced per carton
+    total_supplier_invoice_invoiced_price: Total Supplier invoiced price
+    supplier_credit_note: Supplier credit per carton
+    total_supplier_credit_note: Total Supplier credit price
+    supplier_debit_note: Supplier debit per carton
+    total_supplier_debit_note: Total Supplier debit price
+    pallet_sequence_id: Pallet Seq. id
+    vat: VAT
+    total_vat: Total VAT
+    due_to_supplier_per_carton: Due to supplier per carton
+    total_due_to_supplier: Total due to supplier
+    orchard: Orchard
+    phc: PHC
+    seal_point: Seal point
+    invoice_paid_in_full: Inv paid in full
+    supplier_invoice_ref: Supp Inv. Ref
+    supp_inv_internal_ref: Supp Inv. Internal ref
+    marketing_tm_description: Marketing TM
+    pay_in_forex: Pay Forex
+    supplier_currency: Supp Curr.
+    account_sale_due_date: Accsale Due
+    amount_paid: Amt paid
+    first_pm_due_date: 1st PM Due
+    second_pm_due_date: 2nd PM Due
+    final_pm_due_date: Final PM Due
+    ex_cold_store_per_carton_zar: Ex CS per carton ZAR
+    total_ex_cold_store_zar: Total ex CS ZAR
+    cold_storage_cost_per_carton_zar: Cold Storage per carton ZAR
+    total_cold_storage_costs_zar: Total cold storage costs ZAR
+    transport_to_port_per_carton_zar: Transport to port per carton ZAR
+    total_transport_to_port_zar: Total transport to port ZAR
+    ex_cold_store_per_carton: Ex CS per carton
+    total_ex_cold_store: Total ex CS
+    cold_storage_cost_per_carton: Cold Storage per carton
+    total_cold_storage_costs: Total cold storage costs
+    transport_to_port_per_carton: Transport to port per carton
+    total_transport_to_port: Total transport to port
+    ph_handling: PH Handling
+    total_ph_handling: Total PH Handling
+    ph_degreening: PH Degreening
+    total_ph_degreening: Total PH Degreening
+    ph_packing_costs: PH Packing Costs
+    total_ph_packing_costs: Total PH Packing Costs
+    ph_cold_storage: PH Cold Storage
+    total_ph_cold_storage: Total PH Cold Storage
+    ph_vat: PH Vat
+    total_ph_vat: Total PH Vat
+    ph_supplier_nett: PH Supplier Nett
+    total_ph_supplier_nett: Total PH Supplier Nett
+    low_chem: Chemical Level
+    packed_tm_group: Packed TM Group
+    dest_country: Destination Country
+    invoice_id: Invoice Id
+    channel: Channel
+    related_party: Related Party
+    customer_type: Customer Type
+    fin_supplier_type: Fin. Supplier Type
+    reporting_commodity: Reporting Commodity
+    brand_type: Brand Type
+    zar_total_sales: ZAR Total Sales
+    cas_finalization_status: Cust. Acc. Sale Finalization Status
+    production_run_id: Production Run Id
+    first_notice_decay_condition: 1st Notice Decay
+    first_notice_progressive_condition: 1st Notice Prog
+    first_notice_non_progressive_condition: 1st Notice Non Prog
+    decay_factor_perc: Decay %
+    progressive_factor_perc: Prog %
+    non_progressive_factor_perc_1: Non Prog % 1
+    non_progressive_factor_perc_2: Non Prog % 2
+    notes: Notes
+    final_receiver_org_group_code: Final Receiver Group
+    customer_org_group_code: Customer Group
+    usd_sales: USD Sales
+    total_usd_sales: Total USD Sales
+  formats:
+    nett_weight: delimited_1000
+    total_weight: delimited_1000
+    nett_masterfile_weight: delimited_1000
+    total_masterfile_weight: delimited_1000
+    commercial_weight: delimited_1000
+    total_commercial_weight: delimited_1000
+    perc: delimited_1000
+    pallet_size: delimited_1000
+    usd_etd_roe: delimited_1000_4
+    roe_on_etd: delimited_1000_4
+    roe_on_atd: delimited_1000_4
+    roe_on_acc_sale: delimited_1000_4
+    roe_on_receipt: delimited_1000_4
+    invoiced_price_per_kg: delimited_1000
+    invoiced_price_per_carton: delimited_1000
+    total_invoiced_price: delimited_1000
+    preliminary_price_per_kg: delimited_1000
+    preliminary_price_per_carton: delimited_1000
+    total_preliminary_price: delimited_1000
+    quality_credit_note: delimited_1000
+    total_quality_credit_note: delimited_1000
+    quality_credit_note_zar: delimited_1000
+    total_quality_credit_note_zar: delimited_1000
+    credit_note: delimited_1000
+    total_credit_note: delimited_1000
+    debit_note: delimited_1000
+    total_debit_note: delimited_1000
+    total_received: delimited_1000
+    cif_fob: delimited_1000
+    total_cif_fob: delimited_1000
+    freight: delimited_1000
+    total_freight: delimited_1000
+    overseas_costs: delimited_1000
+    total_overseas_costs: delimited_1000
+    provision_commercial_credit: delimited_1000
+    total_provision_commercial_credit: delimited_1000
+    pre_profit_fob: delimited_1000
+    total_pre_profit_fob: delimited_1000
+    profit: delimited_1000
+    total_profit: delimited_1000
+    post_profit_fob: delimited_1000
+    total_post_profit_fob: delimited_1000
+    commission: delimited_1000
+    total_commission: delimited_1000
+    supplier_fob: delimited_1000
+    total_supplier_fob: delimited_1000
+    estimated_fob_costs_per_crtn: delimited_1000
+    total_estimated_fob_costs: delimited_1000
+    actual_fob_costs_per_ctn: delimited_1000
+    total_actual_fob_costs: delimited_1000
+    dip: delimited_1000
+    total_dip: delimited_1000
+    pre_profit_fob_zar: delimited_1000
+    total_pre_profit_fob_zar: delimited_1000
+    profit_zar: delimited_1000
+    total_profit_zar: delimited_1000
+    post_profit_fob_zar: delimited_1000
+    total_post_profit_fob_zar: delimited_1000
+    commission_zar: delimited_1000
+    total_commission_zar: delimited_1000
+    supplier_fob_zar: delimited_1000
+    total_supplier_fob_zar: delimited_1000
+    estimated_fob_cost_per_carton_zar: delimited_1000
+    total_estimated_fob_costs_zar: delimited_1000
+    actual_fob_costs_per_carton_zar: delimited_1000
+    total_actual_fob_costs_zar: delimited_1000
+    rebate: delimited_1000
+    total_rebate: delimited_1000
+    rebate_zar: delimited_1000
+    total_rebate_zar: delimited_1000
+    dip_zar: delimited_1000
+    total_dip_zar: delimited_1000
+    ppecb: delimited_1000
+    total_ppecb: delimited_1000
+    cga: delimited_1000
+    total_cga: delimited_1000
+    other_levies: delimited_1000
+    total_other: delimited_1000
+    packing_costs: delimited_1000
+    total_packing_costs: delimited_1000
+    vat_zar: delimited_1000
+    total_vat_zar: delimited_1000
+    due_to_supplier_per_carton_zar: delimited_1000
+    total_due_to_supplier_zar: delimited_1000
+    supplier_invoiced_price_per_carton: delimited_1000
+    total_supplier_invoice_invoiced_price: delimited_1000
+    supplier_credit_note: delimited_1000
+    total_supplier_credit_note: delimited_1000
+    supplier_debit_note: delimited_1000
+    total_supplier_debit_note: delimited_1000
+    vat: delimited_1000
+    total_vat: delimited_1000
+    due_to_supplier_per_carton: delimited_1000
+    total_due_to_supplier: delimited_1000
+    amount_paid: delimited_1000
+    ex_cold_store_per_carton_zar: delimited_1000
+    total_ex_cold_store_zar: delimited_1000
+    cold_storage_cost_per_carton_zar: delimited_1000
+    total_cold_storage_costs_zar: delimited_1000
+    transport_to_port_per_carton_zar: delimited_1000
+    total_transport_to_port_zar: delimited_1000
+    ex_cold_store_per_carton: delimited_1000
+    total_ex_cold_store: delimited_1000
+    cold_storage_cost_per_carton: delimited_1000
+    total_cold_storage_costs: delimited_1000
+    transport_to_port_per_carton: delimited_1000
+    total_transport_to_port: delimited_1000
+    ph_handling: delimited_1000
+    total_ph_handling: delimited_1000
+    ph_degreening: delimited_1000
+    total_ph_degreening: delimited_1000
+    ph_packing_costs: delimited_1000
+    total_ph_packing_costs: delimited_1000
+    ph_cold_storage: delimited_1000
+    total_ph_cold_storage: delimited_1000
+    ph_vat: delimited_1000
+    total_ph_vat: delimited_1000
+    ph_supplier_nett: delimited_1000
+    total_ph_supplier_nett: delimited_1000
+    zar_total_sales: delimited_1000
+    decay_factor_perc: delimited_1000
+    progressive_factor_perc: delimited_1000
+    non_progressive_factor_perc_1: delimited_1000
+    non_progressive_factor_perc_2: delimited_1000
+    usd_sales: delimited_1000
+    total_usd_sales: delimited_1000
+  groupable_fields:
+    - supplier
+    - customer_code
+    - voyage_code
+    - container_number
+    - invoice_ref_no
+    - currency_code
+  group_fields_to_sum:
+    - nett_weight
+    - total_weight
+    - nett_masterfile_weight
+    - total_masterfile_weight
+    - total_commercial_weight
+    - pallet_size
+    - total_cartons
+    - total_invoiced_price
+    - total_quality_credit_note
+    - total_credit_note
+    - total_debit_note
+    - total_received
+    - total_cif_fob
+    - total_freight
+    - total_overseas_costs
+    - total_pre_profit_fob
+    - total_profit
+    - total_post_profit_fob
+    - total_commission
+    - total_supplier_fob
+    - total_estimated_fob_costs
+    - total_actual_fob_costs
+    - total_dip
+    - total_pre_profit_fob_zar
+    - total_profit_zar
+    - total_post_profit_fob_zar
+    - total_commission_zar
+    - total_supplier_fob_zar
+    - total_estimated_fob_costs_zar
+    - total_actual_fob_costs_zar
+    - total_rebate
+    - total_rebate_zar
+    - total_dip_zar
+    - total_ppecb
+    - total_cga
+    - total_other
+    - total_vat_zar
+    - total_due_to_supplier_zar
+    - total_supplier_invoice_invoiced_price
+    - total_supplier_credit_note
+    - total_supplier_debit_note
+    - amount_paid
+    - total_ex_cold_store_zar
+    - total_cold_storage_costs_zar
+    - total_transport_to_port_zar
+    - total_ex_cold_store
+    - total_cold_storage_costs
+    - total_transport_to_port
+    - total_ph_handling
+    - total_ph_degreening
+    - total_ph_packing_costs
+    - total_ph_cold_storage
+    - total_ph_vat
+    - total_ph_supplier_nett
+    - zar_total_sales
+    - usd_sales
+    - total_usd_sales
+  hidden:
+    id: true
+
+fields:
+  field1:
+    field_name: customer_code
+    caption: Customer
+    field_type: lookup
+    list: SELECT DISTINCT party_name FROM parties_roles WHERE role_name = 'CUSTOMER' ORDER BY party_name
+  field2:
+    field_name: supplier
+    caption: Supplier
+    field_type: lookup
+    list: SELECT DISTINCT party_name FROM parties_roles WHERE role_name = 'FIN_SUPPLIER' ORDER BY party_name
+  field3:
+    field_name: voyage_code
+    caption: Voyage code
+    field_type: lookup
+    list: SELECT DISTINCT voyage_code FROM voyages ORDER BY voyage_code
+  field4:
+    field_name: commodity_code
+    caption: Commodity
+    field_type: lookup
+    list: SELECT DISTINCT commodity_code FROM commodities
+  field5:
+    field_name: variety_code
+    caption: Variety
+    field_type: lookup
+    list: SELECT DISTINCT variety_code FROM varieties
+  field6:
+    field_name: variety_group
+    caption: Variety Group
+    field_type: lookup
+    list: SELECT DISTINCT variety_group FROM variety_groups
+  field7:
+    field_name: supplier_super_group
+    caption: Supplier super group
+    field_type: lookup
+    list: SELECT DISTINCT supplier_super_group_code FROM supplier_super_groups
+  field8:
+    field_name: pallet_number
+    caption: Pallet number
+    field_type: text
+  field9:
+    field_name: atd
+    caption: ATD date
+    field_type: daterange
