@@ -941,7 +941,7 @@ class ExportFullSeasonWithCopy < ExportTask
       CASE WHEN pallet_sequences.mark_code = 'KGS' AND commodity_groups.commodity_group_code = 'CITRUS' THEN
         (COALESCE(pallet_sequences.fg_product_nett_weight,
                 fg_product_weights_suppliers.nett_weight,
-                fg_product_weights.nett_weight)::numeric(13,4)
+          fg_product_weights.nett_weight)::numeric(20,4)
         * pallet_sequences.carton_quantity
         / CASE WHEN commodities.commodity_code = 'SC' THEN 10 ELSE 15 END)::integer
       WHEN pallet_sequences.mark_code = 'KGS' AND commodities.commodity_code = 'MA' THEN
@@ -949,9 +949,9 @@ class ExportFullSeasonWithCopy < ExportTask
                 fg_product_weights_suppliers.nett_weight,
                 fg_product_weights.nett_weight)
         * pallet_sequences.carton_quantity
-        / 4.2)::numeric(13,4)
+  / 4.2)::numeric(20,4)
       ELSE
-        (pallet_sequences.carton_quantity / fg_product_weights.ratio_to_standard_carton)::numeric(13,4)
+  (pallet_sequences.carton_quantity / fg_product_weights.ratio_to_standard_carton)::numeric(20,4)
       END AS standard_cartons,
       currencies.currency_code,
       supp_currencies.currency_code AS supplier_currency,
@@ -967,7 +967,7 @@ class ExportFullSeasonWithCopy < ExportTask
       exchange_rate_est.exchange_rate AS roe_on_etd,
       exchange_rate_actual.exchange_rate AS roe_on_atd,
       supplier_account_sales.exchange_rate AS roe_on_acc_sale,
-      (SELECT (SUM(cri.amount * cr.rate_of_exchange) / NULLIF(SUM(cri.amount), 0))::numeric(7,4)
+(SELECT (SUM(cri.amount * cr.rate_of_exchange) / NULLIF(SUM(cri.amount), 0))::numeric(11,4)
        FROM customer_receipt_items cri
        JOIN customer_receipts cr ON cr.id = cri.customer_receipt_id
        WHERE cri.invoice_id IN (SELECT id FROM invoices recinv WHERE recinv.id = #{invoice_prefix}.id OR recinv.original_invoice_id = #{invoice_prefix}.id)
@@ -978,7 +978,7 @@ class ExportFullSeasonWithCopy < ExportTask
       preliminary_inv.invoice_ref_no AS preliminary_ref_no,
 
       CASE WHEN preliminary_inv.price_is_per_kg THEN
-        CAST(preliminary_inv_item.unit_price AS numeric(12,6))
+  CAST(preliminary_inv_item.unit_price AS numeric(20,6))
       ELSE
         NULL
       END AS preliminary_price_per_kg,
@@ -1601,7 +1601,8 @@ class ExportFullSeasonWithCopy < ExportTask
                    ph_handlingph_degreeningph_packing_costsph_cold_storage rebate_zar
                    provision_commercial_credit total_provision_commercial_creditzar_total_sales
                    decay_factor_perc progressive_factor_perc non_progressive_factor_perc_1 non_progressive_factor_perc_2
-                   usd_sales total_usd_sales standard_cartons].freeze
+                   usd_sales total_usd_sales standard_cartons
+                   total_provision_commercial_credit].freeze
 
   STR_FIELDS  = %i[invoice_ref_no ucr_number customer_code gl_code
                    final_receiver month shipping_week deal_category
