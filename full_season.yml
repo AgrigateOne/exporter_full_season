@@ -44,7 +44,7 @@ query: |
   channel,related_party,customer_type,fin_supplier_type,reporting_commodity,brand_type,zar_total_sales,cas_finalization_status,production_run_id,
   first_notice_decay_condition, first_notice_progressive_condition, first_notice_non_progressive_condition,
   decay_factor_perc, progressive_factor_perc, non_progressive_factor_perc_1, non_progressive_factor_perc_2, notes, final_receiver_org_group_code, customer_org_group_code,
-  usd_sales, total_usd_sales
+  usd_sales, total_usd_sales, total_usd_invoiced
   FROM dw_fin_full_season_2022
   WHERE(customer_code={customer_code} AND supplier={supplier} AND voyage_code={voyage_code}
   AND commodity_code={commodity_code} AND variety_code={variety_code} AND variety_group={variety_group}
@@ -245,6 +245,7 @@ grid_configs:
     non_progressive_factor_perc_2: number
     usd_sales: number
     total_usd_sales: number
+    total_usd_invoiced: number
   column_captions:
     invoice_ref_no: Invoice ref no
     ucr_number: Ucr number
@@ -486,6 +487,7 @@ grid_configs:
     customer_org_group_code: Customer Group
     usd_sales: USD Sales
     total_usd_sales: Total USD Sales
+    total_usd_invoiced: Total USD Invoiced
   formats:
     nett_weight: delimited_1000
     total_weight: delimited_1000
@@ -613,6 +615,7 @@ grid_configs:
     non_progressive_factor_perc_2: delimited_1000
     usd_sales: delimited_1000
     total_usd_sales: delimited_1000
+    total_usd_invoiced: delimited_1000
   groupable_fields:
     - supplier
     - customer_code
@@ -678,6 +681,7 @@ grid_configs:
     - zar_total_sales
     - usd_sales
     - total_usd_sales
+    - total_usd_invoiced
   hidden:
     id: true
 

@@ -2,6 +2,16 @@
 
 # frozen_string_literal: true
 
+# To run locally: ruby sequel_export_full_season.rb 2022 dev
+# bundle exec sequel_export_full_season.rb 2022 dev
+
+# NOTE: This process uses postgresql's COPY command which needs a writeable dir for caching.
+#       `nspack` in this example is the user group name.
+#
+#     sudo mkdir /var/lib/postgresql/workarea
+#     sudo chown postgres:nspack /var/lib/postgresql/workarea/
+#     sudo chmod g+w /var/lib/postgresql/workarea/
+
 # A butchered copy of the Ruby 1.8.7 full season extract in the exporter system.
 # This code only has to run for a season, so a lot of configuration has been hard-coded.
 # That is also why the design is a bit peculiar...
@@ -741,6 +751,7 @@ class ExportFullSeasonWithCopy < ExportTask
     row[:total_ph_supplier_nett]            = ph_supplier_nett * total_cartons
 
     row[:zar_total_sales]                   = total_cif_fob * rec[:roe_on_atd]
+    row[:total_usd_invoiced]                = row[:zar_total_sales] / rec[:usd_etd_roe]
 
     if rec[:currency_code] == 'USD'
       row[:usd_sales]                         = pre_profit_fob
@@ -985,16 +996,16 @@ class ExportFullSeasonWithCopy < ExportTask
       CASE WHEN preliminary_inv.price_is_per_kg THEN
         CAST(preliminary_inv_item.unit_price * COALESCE(pallet_sequences.fg_product_nett_weight,
                                                 fg_product_weights_suppliers.nett_weight,
-                                                fg_product_weights.nett_weight) AS numeric(13,6))
+                                                fg_product_weights.nett_weight) AS numeric(20,6))
       ELSE
-        CAST(preliminary_inv_item.unit_price AS numeric(13,6))
+        CAST(preliminary_inv_item.unit_price AS numeric(20,6))
       END AS preliminary_price_per_carton,
       CASE WHEN preliminary_inv.price_is_per_kg THEN
         CAST(preliminary_inv_item.unit_price * COALESCE(pallet_sequences.fg_product_nett_weight,
                                                 fg_product_weights_suppliers.nett_weight,
-                                                fg_product_weights.nett_weight) * pallet_sequences.carton_quantity AS numeric(13,6))
+                                                fg_product_weights.nett_weight) * pallet_sequences.carton_quantity AS numeric(20,6))
       ELSE
-        CAST(preliminary_inv_item.unit_price * pallet_sequences.carton_quantity AS numeric(13,6))
+        CAST(preliminary_inv_item.unit_price * pallet_sequences.carton_quantity AS numeric(20,6))
       END AS total_preliminary_price,
 
       ( SELECT string_agg( CAST(invoice_ref_no AS character varying), '; ') FROM (SELECT dn_cn.invoice_ref_no
@@ -1009,9 +1020,9 @@ class ExportFullSeasonWithCopy < ExportTask
       ( SELECT ABS(SUM(CASE WHEN dn_cn_i.price_is_per_kg THEN
                      CAST(dn_cn_i.unit_price * COALESCE(pallet_sequences.fg_product_nett_weight,
                                                         fg_product_weights_suppliers.nett_weight,
-                                                        fg_product_weights.nett_weight) AS numeric(12,6))
+                                                        fg_product_weights.nett_weight) AS numeric(20,6))
                    ELSE
-                     CAST(dn_cn_i.unit_price AS numeric(12,6))
+                     CAST(dn_cn_i.unit_price AS numeric(20,6))
                    END))
           FROM invoice_items_pallet_sequences iips
           JOIN invoice_items dn_cn_i ON dn_cn_i.id = iips.invoice_item_id
@@ -1024,9 +1035,9 @@ class ExportFullSeasonWithCopy < ExportTask
       ( SELECT ABS(SUM(CASE WHEN dn_cn_i.price_is_per_kg THEN
                      CAST(dn_cn_i.unit_price * COALESCE(pallet_sequences.fg_product_nett_weight,
                                                         fg_product_weights_suppliers.nett_weight,
-                                                        fg_product_weights.nett_weight) AS numeric(13,6))
+                                                        fg_product_weights.nett_weight) AS numeric(20,6))
                    ELSE
-                     CAST(dn_cn_i.unit_price AS numeric(13,6))
+                     CAST(dn_cn_i.unit_price AS numeric(20,6))
                    END * pallet_sequences.carton_quantity))
           FROM invoice_items_pallet_sequences iips
           JOIN invoice_items dn_cn_i ON dn_cn_i.id = iips.invoice_item_id
@@ -1039,9 +1050,9 @@ class ExportFullSeasonWithCopy < ExportTask
       ( SELECT SUM(CASE WHEN dn_cn_i.price_is_per_kg THEN
                      CAST(dn_cn_i.unit_price * COALESCE(pallet_sequences.fg_product_nett_weight,
                                                         fg_product_weights_suppliers.nett_weight,
-                                                        fg_product_weights.nett_weight) AS numeric(12,6))
+                                                        fg_product_weights.nett_weight) AS numeric(20,6))
                    ELSE
-                     CAST(dn_cn_i.unit_price AS numeric(12,6))
+                     CAST(dn_cn_i.unit_price AS numeric(20,6))
                    END)
           FROM invoice_items_pallet_sequences iips
           JOIN invoice_items dn_cn_i ON dn_cn_i.id = iips.invoice_item_id
@@ -1054,9 +1065,9 @@ class ExportFullSeasonWithCopy < ExportTask
       ( SELECT SUM(CASE WHEN dn_cn_i.price_is_per_kg THEN
                      CAST(dn_cn_i.unit_price * COALESCE(pallet_sequences.fg_product_nett_weight,
                                                         fg_product_weights_suppliers.nett_weight,
-                                                        fg_product_weights.nett_weight) AS numeric(13,6))
+                                                        fg_product_weights.nett_weight) AS numeric(20,6))
                    ELSE
-                     CAST(dn_cn_i.unit_price AS numeric(13,6))
+                     CAST(dn_cn_i.unit_price AS numeric(20,6))
                    END * pallet_sequences.carton_quantity)
           FROM invoice_items_pallet_sequences iips
           JOIN invoice_items dn_cn_i ON dn_cn_i.id = iips.invoice_item_id
@@ -1087,9 +1098,9 @@ class ExportFullSeasonWithCopy < ExportTask
       ( SELECT SUM(CASE WHEN dn_cn_i.price_is_per_kg THEN
                      CAST(dn_cn_i.unit_price * COALESCE(pallet_sequences.fg_product_nett_weight,
                                                         fg_product_weights_suppliers.nett_weight,
-                                                        fg_product_weights.nett_weight) AS numeric(12,6))
+                                                        fg_product_weights.nett_weight) AS numeric(20,6))
                    ELSE
-                     CAST(dn_cn_i.unit_price AS numeric(12,6))
+                     CAST(dn_cn_i.unit_price AS numeric(20,6))
                    END)
           FROM invoice_items_pallet_sequences iips
           JOIN invoice_items dn_cn_i ON dn_cn_i.id = iips.invoice_item_id
@@ -1101,9 +1112,9 @@ class ExportFullSeasonWithCopy < ExportTask
       ( SELECT SUM(CASE WHEN dn_cn_i.price_is_per_kg THEN
                      CAST(dn_cn_i.unit_price * COALESCE(pallet_sequences.fg_product_nett_weight,
                                                         fg_product_weights_suppliers.nett_weight,
-                                                        fg_product_weights.nett_weight) AS numeric(13,6))
+                                                        fg_product_weights.nett_weight) AS numeric(20,6))
                    ELSE
-                     CAST(dn_cn_i.unit_price AS numeric(13,6))
+                     CAST(dn_cn_i.unit_price AS numeric(20,6))
                    END * pallet_sequences.carton_quantity)
           FROM invoice_items_pallet_sequences iips
           JOIN invoice_items dn_cn_i ON dn_cn_i.id = iips.invoice_item_id
@@ -1131,16 +1142,16 @@ class ExportFullSeasonWithCopy < ExportTask
       CASE WHEN supplier_invoice_items.price_is_per_kg THEN
         CAST(supplier_invoice_items.unit_price * COALESCE(pallet_sequences.fg_product_nett_weight,
                                                 fg_product_weights_suppliers.nett_weight,
-                                                fg_product_weights.nett_weight) AS numeric(12,6))
+                                                fg_product_weights.nett_weight) AS numeric(20,6))
       ELSE
-        CAST(supplier_invoice_items.unit_price AS numeric(12,6))
+        CAST(supplier_invoice_items.unit_price AS numeric(20,6))
       END AS supplier_invoiced_price_per_carton,
       CASE WHEN supplier_invoice_items.price_is_per_kg THEN
         CAST(supplier_invoice_items.unit_price * COALESCE(pallet_sequences.fg_product_nett_weight,
                                         fg_product_weights_suppliers.nett_weight,
-                                        fg_product_weights.nett_weight) * pallet_sequences.carton_quantity AS numeric(13,6))
+                                        fg_product_weights.nett_weight) * pallet_sequences.carton_quantity AS numeric(20,6))
       ELSE
-        CAST(supplier_invoice_items.unit_price * pallet_sequences.carton_quantity AS numeric(13,6))
+        CAST(supplier_invoice_items.unit_price * pallet_sequences.carton_quantity AS numeric(20,6))
       END AS total_supplier_invoice_invoiced_price,
 
       ( SELECT ABS(SUM(dn_cn_i.unit_price))
@@ -1192,25 +1203,25 @@ class ExportFullSeasonWithCopy < ExportTask
       ), 0.0)
       )
       / (
-      COALESCE((SELECT SUM(CASE WHEN inv.price_is_per_kg THEN
-                NULLIF(CAST(item.unit_price * item.mass_in_kg AS numeric(13,6)),0)
+      COALESCE(NULLIF((SELECT SUM(CASE WHEN inv.price_is_per_kg THEN
+                NULLIF(CAST(item.unit_price * item.mass_in_kg AS numeric(20,6)),0)
               ELSE
-                NULLIF(CAST(item.unit_price * item.no_cartons AS numeric(13,6)),0)
+                NULLIF(CAST(item.unit_price * item.no_cartons AS numeric(20,6)),0)
               END)
        from invoice_items item
        join invoices inv on inv.id = item.invoice_id
        where item.invoice_id = pallet_sequences.invoice_id
-      ), 1.0)
+      ), 0), 1.0)
       /
-      COALESCE((SELECT SUM(CASE WHEN inv.price_is_per_kg THEN
-                NULLIF(CAST(item.unit_price * item.mass_in_kg AS numeric(13,6)),0)
+      COALESCE(NULLIF((SELECT SUM(CASE WHEN inv.price_is_per_kg THEN
+                NULLIF(CAST(item.unit_price * item.mass_in_kg AS numeric(20,6)),0)
               ELSE
-                NULLIF(CAST(item.unit_price * item.no_cartons AS numeric(13,6)),0)
+                NULLIF(CAST(item.unit_price * item.no_cartons AS numeric(20,6)),0)
               END)
        from invoice_items item
        join invoices inv on inv.id = item.invoice_id
        where item.id = pallet_sequences.invoice_item_id
-      ), 1.0)
+      ), 0 ), 1.0)
       )
       /
       COALESCE((SELECT item.no_cartons
@@ -1602,7 +1613,7 @@ class ExportFullSeasonWithCopy < ExportTask
                    provision_commercial_credit total_provision_commercial_creditzar_total_sales
                    decay_factor_perc progressive_factor_perc non_progressive_factor_perc_1 non_progressive_factor_perc_2
                    usd_sales total_usd_sales standard_cartons
-                   total_provision_commercial_credit].freeze
+                   total_provision_commercial_credit total_usd_invoiced].freeze
 
   STR_FIELDS  = %i[invoice_ref_no ucr_number customer_code gl_code
                    final_receiver month shipping_week deal_category
@@ -1867,7 +1878,8 @@ class ExportFullSeasonWithCopy < ExportTask
     customer_org_group_code: :string,
     final_receiver_org_group_code: :string,
     usd_sales: :numeric,
-    total_usd_sales: :numeric
+    total_usd_sales: :numeric,
+    total_usd_invoiced: :numeric
   }.freeze
   COL_NAMES = FIELD_DEFS.keys
   NUM_COLS = FIELD_DEFS.select { |_, v| v == :numeric }.map { |k, _| k }
@@ -1894,7 +1906,10 @@ end
 # EXPORTER_CLIENT=unifrutti script/runner -e production 'require "lib/tasks/export_full_season_with_copy"; ExportFullSeasonWithCopy.make_spreadsheet(2016)'
 # EXPORTER_CLIENT=unifrutti script/runner -e production 'require "lib/tasks/export_full_season_with_copy"; ExportFullSeasonWithCopy.upload_spreadsheet(2016)'
 # EXPORTER_CLIENT=unifrutti script/runner -e production 'require "lib/tasks/export_full_season_with_copy"; ExportFullSeasonWithCopy.re_populate_table(2016)'
+# EXPORTER_CLIENT=unifrutti script/runner -e production 'require "lib/tasks/export_full_season_with_copy"; ExportFullSeasonWithCopy.show_query_sql'
+
 ExportFullSeasonWithCopy.upload_spreadsheet(year.to_i)
+# puts ExportFullSeasonWithCopy.show_query_sql
 
 # rubocop:enable Layout/LineLength
 # rubocop:enable Naming/VariableNumber
