@@ -826,24 +826,36 @@ class ExportFullSeasonWithCopy < ExportTask
           CAST(item.unit_price * pallet_sequences.carton_quantity AS numeric(13,6))
         END AS total_invoiced_price,
         -- Expected invoice prices
-        CASE WHEN invoices.price_is_per_kg THEN
-          CAST(item.expected_invoice_price AS numeric(13,6))
-        ELSE
+        CASE WHEN customer_account_sales.approved THEN
           NULL
+        ELSE
+          CASE WHEN invoices.price_is_per_kg THEN
+            CAST(item.expected_invoice_price AS numeric(13,6))
+          ELSE
+            NULL
+          END
         END AS expected_invoiced_price_per_kg,
-        CASE WHEN invoices.price_is_per_kg THEN
-          CAST(item.expected_invoice_price * COALESCE(pallet_sequences.fg_product_nett_weight,
-                                          fg_product_weights_suppliers.nett_weight,
-                                          fg_product_weights.nett_weight) AS numeric(13,6))
+        CASE WHEN customer_account_sales.approved THEN
+          NULL
         ELSE
-          CAST(item.expected_invoice_price AS numeric(12,6))
+          CASE WHEN invoices.price_is_per_kg THEN
+            CAST(item.expected_invoice_price * COALESCE(pallet_sequences.fg_product_nett_weight,
+                                            fg_product_weights_suppliers.nett_weight,
+                                            fg_product_weights.nett_weight) AS numeric(13,6))
+          ELSE
+            CAST(item.expected_invoice_price AS numeric(12,6))
+          END
         END AS expected_invoiced_price_per_carton,
-        CASE WHEN invoices.price_is_per_kg THEN
-          CAST(item.expected_invoice_price * COALESCE(pallet_sequences.fg_product_nett_weight,
-                                          fg_product_weights_suppliers.nett_weight,
-                                          fg_product_weights.nett_weight) * pallet_sequences.carton_quantity AS numeric(13,6))
+        CASE WHEN customer_account_sales.approved THEN
+          NULL
         ELSE
-          CAST(item.expected_invoice_price * pallet_sequences.carton_quantity AS numeric(13,6))
+          CASE WHEN invoices.price_is_per_kg THEN
+            CAST(item.expected_invoice_price * COALESCE(pallet_sequences.fg_product_nett_weight,
+                                            fg_product_weights_suppliers.nett_weight,
+                                            fg_product_weights.nett_weight) * pallet_sequences.carton_quantity AS numeric(13,6))
+          ELSE
+            CAST(item.expected_invoice_price * pallet_sequences.carton_quantity AS numeric(13,6))
+          END
         END AS total_expected_invoiced_price,
       SQL
     else
