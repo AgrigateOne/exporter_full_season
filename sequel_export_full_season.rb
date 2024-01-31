@@ -825,6 +825,26 @@ class ExportFullSeasonWithCopy < ExportTask
         ELSE
           CAST(item.unit_price * pallet_sequences.carton_quantity AS numeric(13,6))
         END AS total_invoiced_price,
+        -- Expected invoice prices
+        CASE WHEN invoices.price_is_per_kg THEN
+          CAST(item.expected_invoice_price AS numeric(13,6))
+        ELSE
+          NULL
+        END AS expected_invoiced_price_per_kg,
+        CASE WHEN invoices.price_is_per_kg THEN
+          CAST(item.expected_invoice_price * COALESCE(pallet_sequences.fg_product_nett_weight,
+                                          fg_product_weights_suppliers.nett_weight,
+                                          fg_product_weights.nett_weight) AS numeric(13,6))
+        ELSE
+          CAST(item.expected_invoice_price AS numeric(12,6))
+        END AS expected_invoiced_price_per_carton,
+        CASE WHEN invoices.price_is_per_kg THEN
+          CAST(item.expected_invoice_price * COALESCE(pallet_sequences.fg_product_nett_weight,
+                                          fg_product_weights_suppliers.nett_weight,
+                                          fg_product_weights.nett_weight) * pallet_sequences.carton_quantity AS numeric(13,6))
+        ELSE
+          CAST(item.expected_invoice_price * pallet_sequences.carton_quantity AS numeric(13,6))
+        END AS total_expected_invoiced_price,
       SQL
     else
       invoice_prefix = 'preliminary_inv'
@@ -840,6 +860,10 @@ class ExportFullSeasonWithCopy < ExportTask
         0.0 AS invoiced_price_per_kg,
         0.0 AS invoiced_price_per_carton,
         0.0 AS total_invoiced_price,
+        -- Expected invoice prices
+        0.0 AS expected_invoiced_price_per_kg,
+        0.0 AS expected_invoiced_price_per_carton,
+        0.0 AS total_expected_invoiced_price,
       SQL
     end
 
@@ -1596,7 +1620,8 @@ class ExportFullSeasonWithCopy < ExportTask
   NUM_FIELDS  = %i[nett_weight total_weight nett_masterfile_weight total_masterfile_weight
                    perc pallet_size usd_etd_roe roe_on_etd roe_on_atd roe_on_acc_sale
                    roe_on_receipt invoiced_price_per_kg invoiced_price_per_carton
-                   total_invoiced_price preliminary_price_per_kg
+                   total_invoiced_price expected_invoiced_price_per_kg expected_invoiced_price_per_carton
+                   total_expected_invoiced_price preliminary_price_per_kg
                    preliminary_price_per_carton total_preliminary_price
                    quality_credit_note
                    total_quality_credit_note credit_note
@@ -1695,6 +1720,9 @@ class ExportFullSeasonWithCopy < ExportTask
     invoiced_price_per_kg: :numeric,
     invoiced_price_per_carton: :numeric,
     total_invoiced_price: :numeric,
+    expected_invoiced_price_per_kg: :numeric,
+    expected_invoiced_price_per_carton: :numeric,
+    total_expected_invoiced_price: :numeric,
     quality_credit_note_numbers: :string,
     quality_credit_note: :numeric,
     total_quality_credit_note: :numeric,

@@ -44,7 +44,7 @@ query: |
   channel,related_party,customer_type,fin_supplier_type,reporting_commodity,brand_type,zar_total_sales,cas_finalization_status,production_run_id,
   first_notice_decay_condition, first_notice_progressive_condition, first_notice_non_progressive_condition,
   decay_factor_perc, progressive_factor_perc, non_progressive_factor_perc_1, non_progressive_factor_perc_2, notes, final_receiver_org_group_code, customer_org_group_code,
-  usd_sales, total_usd_sales, total_usd_invoiced
+  usd_sales, total_usd_sales, total_usd_invoiced, expected_invoiced_price_per_kg, expected_invoiced_price_per_carton, total_expected_invoiced_price
   FROM dw_fin_full_season_2022
   WHERE(customer_code={customer_code} AND supplier={supplier} AND voyage_code={voyage_code}
   AND commodity_code={commodity_code} AND variety_code={variety_code} AND variety_group={variety_group}
@@ -116,6 +116,9 @@ grid_configs:
     invoiced_price_per_kg: number
     invoiced_price_per_carton: number
     total_invoiced_price: number
+    expected_invoiced_price_per_kg: number
+    expected_invoiced_price_per_carton: number
+    total_expected_invoiced_price: number
     preliminary_ref_no: integer
     preliminary_price_per_kg: number
     preliminary_price_per_carton: number
@@ -319,6 +322,9 @@ grid_configs:
     invoiced_price_per_kg: Invoiced price per kg
     invoiced_price_per_carton: Invoiced price per carton
     total_invoiced_price: Total invoiced price
+    expected_invoiced_price_per_kg: Expected invoiced price per kg
+    expected_invoiced_price_per_carton: Expected invoiced price per carton
+    total_expected_invoiced_price: Total expected invoiced price
     preliminary_ref_no: Preliminary Ref
     preliminary_price_per_kg: Preliminary price per kg
     preliminary_price_per_cartoN: Preliminary price per carton
@@ -505,6 +511,9 @@ grid_configs:
     invoiced_price_per_kg: delimited_1000
     invoiced_price_per_carton: delimited_1000
     total_invoiced_price: delimited_1000
+    expected_invoiced_price_per_kg: delimited_1000
+    expected_invoiced_price_per_carton: delimited_1000
+    total_expected_invoiced_price: delimited_1000
     preliminary_price_per_kg: delimited_1000
     preliminary_price_per_carton: delimited_1000
     total_preliminary_price: delimited_1000
@@ -632,6 +641,7 @@ grid_configs:
     - pallet_size
     - total_cartons
     - total_invoiced_price
+    - total_expected_invoiced_price
     - total_quality_credit_note
     - total_credit_note
     - total_debit_note
